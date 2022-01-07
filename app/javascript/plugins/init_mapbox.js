@@ -13,14 +13,89 @@ const initMapbox = () => {
     mapboxgl.accessToken = mapElement.dataset.mapboxApiKey;
     const map = new mapboxgl.Map({
       container: 'map',
-      style: 'mapbox://styles/mapbox/streets-v10'
+      style: 'mapbox://styles/mapbox/streets-v11',
     });
+
     const markers = JSON.parse(mapElement.dataset.markers);
-    markers.forEach((marker) => {
-      new mapboxgl.Marker()
+    const lines = [];
+    const colors = [];
+    markers.forEach((marker, index) => {
+      lines.push([marker.lng, marker.lat])
+      if (index !== 0) {
+        colors.push([markers[index - 1].color, marker.color])
+      }
+      const mk = document.createElement('div');
+      mk.className = 'marker';
+      mk.style.backgroundColor = 'red';
+      mk.style.borderRadius = '50%';
+      mk.style.width = '5px';
+      mk.style.height = '5px';
+
+      new mapboxgl.Marker(mk)
         .setLngLat([ marker.lng, marker.lat ])
         .addTo(map);
     });
+    console.log(colors)
+    map.on('load', () => {
+      map.addSource('route', {
+      'type': 'geojson',
+      'data': {
+      'type': 'Feature',
+      'properties': {},
+      'geometry': {
+      'type': 'LineString',
+      'coordinates': lines.slice(0, 150)
+      }
+      }
+      });
+      map.addSource('routess', {
+        'type': 'geojson',
+        'lineMetrics': true,
+        'data': {
+        'type': 'Feature',
+        'properties': {},
+        'geometry': {
+        'type': 'LineString',
+        'coordinates': lines.slice(151)
+        }
+        }
+        });
+      map.addLayer({
+      'id': 'route',
+      'type': 'line',
+      'source': 'route',
+      'layout': {
+      'line-join': 'round',
+      'line-cap': 'round'
+      },
+      'paint': {
+      'line-color': '#000',
+      'line-width': 8
+      }
+      });
+      map.addLayer({
+        'id': 'routess',
+        'type': 'line',
+        'source': 'routess',
+        'layout': {
+        'line-join': 'round',
+        'line-cap': 'round'
+        },
+        'paint': {
+        'line-color': '#000',
+        'line-gradient': [
+          'interpolate',
+          ['linear'],
+          ['line-progress'],
+          0,
+          'blue',
+          1,
+          'red'
+          ],
+        'line-width': 8
+        }
+        });
+      });
     fitMapToMarkers(map, markers);
   }
 };

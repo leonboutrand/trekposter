@@ -5,17 +5,27 @@ class PagesController < ApplicationController
     doc = Nokogiri::XML(open(file))
     trackpoints = doc.xpath('//xmlns:trkpt')
     trackpoints.map do |trkpt|
-      [trkpt.xpath('@lat').to_s.to_f, trkpt.xpath('@lon').to_s.to_f, trkpt.xpath('ele').text.to_f]
+      {
+        lat: trkpt.xpath('@lat').try(:to_s).try(:to_f),
+        lng: trkpt.xpath('@lon').try(:to_s).try(:to_f),
+        ele: trkpt.children[1].try(:text).try(:to_f)
+      }
     end
   end
 
   def main
-    @markers = [{
-      lat: 35,
-      lng: 36
-    },{
-      lat: 37,
-      lng: 36
-    }]
+    @markers = parseGPX
+    ap max_ele = @markers.max {|a, b| a[:ele] <=> b[:ele]}[:ele]
+    ap min_ele = @markers.min {|a, b| a[:ele] <=> b[:ele]}[:ele]
+    amp_ele = max_ele - min_ele
+    if (amp_ele > 0)
+      @markers.each do |gpx|
+        gpx[:color] = ((gpx[:ele] - min_ele)*255 / amp_ele).to_i
+      end
+    else
+      @markers.each do |gpx|
+        gpx[:color] = 255
+      end
+    end
   end
 end
