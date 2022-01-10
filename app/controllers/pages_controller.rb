@@ -14,15 +14,9 @@ class PagesController < ApplicationController
   end
 
   def global_coloring(markers)
-    # noter chaque elevation sur 10? (tester différentes valeurs)
-    # obtenir les distances entre chaque point avec racine lat long
-    # ainsi obtenir la distance totale
-    # chaque fois que color n'est pas pareil que le précedent {index: somme_current_dist / total, new color}
-    # convertir cette note en couleur en fonction du color range
-    
     color_bounds = [
-      [255, 255, 0],
-      [255, 0, 0]
+      [255, 255, 100],
+      [50, 0, 0]
     ]
     grad = 10
     color_range = (0..grad).map do |i|
@@ -68,7 +62,6 @@ class PagesController < ApplicationController
 
   def main
     @markers = parseGPX
-    puts "\n\n\n\n\n\n HEYYYYY"
-    ap @route_colors = global_coloring(@markers)
+    @route_colors = global_coloring(@markers)
   end
 end

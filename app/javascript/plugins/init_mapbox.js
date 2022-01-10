@@ -19,7 +19,6 @@ const initMapbox = () => {
 
     const markers = JSON.parse(mapElement.dataset.markers);
     const lines = [];
-    console.log(mapElement.dataset)
     const colors = JSON.parse(mapElement.dataset.routeColors);
     const lineGradient = [
       'interpolate',
@@ -35,12 +34,12 @@ const initMapbox = () => {
       mk.style.borderRadius = '50%';
       mk.style.width = '5px';
       mk.style.height = '5px';
+      mk.style.display = 'none';
 
       new mapboxgl.Marker(mk)
         .setLngLat([ marker.lng, marker.lat ])
         .addTo(map);
     });
-    console.log(colors)
     map.on('load', () => {
       map.addSource('route', {
         'type': 'geojson',
