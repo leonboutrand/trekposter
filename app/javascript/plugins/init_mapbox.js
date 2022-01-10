@@ -9,6 +9,7 @@ const initMapbox = () => {
     markers.forEach(marker => bounds.extend([ marker.lng, marker.lat ]));
     map.fitBounds(bounds, { padding: 70, maxZoom: 15, duration: 0 });
   };
+
   if (mapElement) { // only build a map if there's a div#map to inject into
     mapboxgl.accessToken = mapElement.dataset.mapboxApiKey;
     const map = new mapboxgl.Map({
@@ -18,12 +19,16 @@ const initMapbox = () => {
 
     const markers = JSON.parse(mapElement.dataset.markers);
     const lines = [];
-    const colors = [];
+    console.log(mapElement.dataset)
+    const colors = JSON.parse(mapElement.dataset.routeColors);
+    const lineGradient = [
+      'interpolate',
+      ['linear'],
+      ['line-progress']
+    ].concat(colors)
+    console.log(lineGradient)
     markers.forEach((marker, index) => {
       lines.push([marker.lng, marker.lat])
-      if (index !== 0) {
-        colors.push([markers[index - 1].color, marker.color])
-      }
       const mk = document.createElement('div');
       mk.className = 'marker';
       mk.style.backgroundColor = 'red';
@@ -38,60 +43,28 @@ const initMapbox = () => {
     console.log(colors)
     map.on('load', () => {
       map.addSource('route', {
-      'type': 'geojson',
-      'data': {
-      'type': 'Feature',
-      'properties': {},
-      'geometry': {
-      'type': 'LineString',
-      'coordinates': lines.slice(0, 150)
-      }
-      }
-      });
-      map.addSource('routess', {
         'type': 'geojson',
         'lineMetrics': true,
         'data': {
-        'type': 'Feature',
-        'properties': {},
-        'geometry': {
-        'type': 'LineString',
-        'coordinates': lines.slice(151)
+          'type': 'Feature',
+          'properties': {},
+          'geometry': {
+          'type': 'LineString',
+          'coordinates': lines
+          }
         }
-        }
-        });
-      map.addLayer({
-      'id': 'route',
-      'type': 'line',
-      'source': 'route',
-      'layout': {
-      'line-join': 'round',
-      'line-cap': 'round'
-      },
-      'paint': {
-      'line-color': '#000',
-      'line-width': 8
-      }
       });
       map.addLayer({
-        'id': 'routess',
+        'id': 'route',
         'type': 'line',
-        'source': 'routess',
+        'source': 'route',
         'layout': {
         'line-join': 'round',
         'line-cap': 'round'
         },
         'paint': {
         'line-color': '#000',
-        'line-gradient': [
-          'interpolate',
-          ['linear'],
-          ['line-progress'],
-          0,
-          'blue',
-          1,
-          'red'
-          ],
+        'line-gradient': lineGradient,
         'line-width': 8
         }
         });
