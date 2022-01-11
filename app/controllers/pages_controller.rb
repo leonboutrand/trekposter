@@ -1,7 +1,7 @@
 class PagesController < ApplicationController
 
-  def parseGPX
-    file = File.open('app/assets/gpx/sgmx.gpx')
+  def parseGPX(file_url)
+    file = File.open(file_url)
     doc = Nokogiri::XML(open(file))
     trackpoints = doc.xpath('//xmlns:trkpt')
     trackpoints.map do |trkpt|
@@ -13,7 +13,7 @@ class PagesController < ApplicationController
     end
   end
 
-  def global_coloring(markers)
+  def global_coloring(markers_set)
     color_bounds = [
       [255, 255, 100],
       [50, 0, 0]
@@ -27,41 +27,39 @@ class PagesController < ApplicationController
     color_range.map! { |c| "rgb(#{c[0]},#{c[1]},#{c[2]})"}
 
     colors = []
-    max_ele = markers.max {|a, b| a[:ele] <=> b[:ele]}[:ele]
-    min_ele = markers.min {|a, b| a[:ele] <=> b[:ele]}[:ele]
+    max_ele = markers_set.flatten.max {|a, b| a[:ele] <=> b[:ele]}[:ele]
+    min_ele = markers_set.flatten.min {|a, b| a[:ele] <=> b[:ele]}[:ele]
     amp_ele = max_ele - min_ele
 
     if (amp_ele > 0)
-      distance = 0
-      previous_coord = [markers[0][:lat], markers[0][:lng]]
-      markers.each do |marker|
-        distance += Math.sqrt((marker[:lat] - previous_coord[0]) ** 2 + (marker[:lng] - previous_coord[1]) ** 2)
-        marker[:color] = ((marker[:ele] - min_ele)*grad / amp_ele).to_i
-        marker[:distance] = distance
-        previous_coord = [marker[:lat], marker[:lng]]
-      end
-      previous_color = -1
-      markers.each do |marker|
-        if previous_color != marker[:color]
-          colors += [marker[:distance].fdiv(distance), color_range[marker[:color]]]
+      markers_set.each.with_index do |markers, i|
+        ap [markers.length, i]
+        colors << []
+        distance = 0
+        previous_coord = [markers[0][:lat], markers[0][:lng]]
+        markers.each do |marker|
+          distance += Math.sqrt((marker[:lat] - previous_coord[0]) ** 2 + (marker[:lng] - previous_coord[1]) ** 2)
+          marker[:color] = ((marker[:ele] - min_ele)*grad / amp_ele).to_i
+          marker[:distance] = distance
+          previous_coord = [marker[:lat], marker[:lng]]
         end
-        previous_color = marker[:color]
+        previous_color = -1
+        markers.each do |marker|
+          if previous_color != marker[:color]
+            colors[i] += [marker[:distance].fdiv(distance), color_range[marker[:color]]]
+          end
+          previous_color = marker[:color]
+        end
       end
     else
-      markers.each do |marker|
-        marker[:color] = 255
-      end
-      colors = [0, color_range[0], 1, color_range[0]]
+      colors = [[0, color_range[0], 1, color_range[0]]]
     end
     colors
   end
 
-  def color_markers
-    
-  end
-
   def main
-    @markers = parseGPX
+    urls = ['app/assets/gpx/sgmx.gpx','app/assets/gpx/sgmx2.gpx']
+    @markers = urls.map { |url| parseGPX(url) }
     @route_colors = global_coloring(@markers)
   end
 end

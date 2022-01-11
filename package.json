@@ -6,6 +6,8 @@
     "@rails/activestorage": "^6.0.0",
     "@rails/ujs": "^6.0.0",
     "@rails/webpacker": "5.4.3",
+    "file-saver": "^2.0.5",
+    "html2canvas": "^1.4.0",
     "mapbox-gl": "^2.6.1",
     "turbolinks": "^5.2.0",
     "webpack": "^4.46.0",

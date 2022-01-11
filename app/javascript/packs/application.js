@@ -8,6 +8,7 @@ import Turbolinks from "turbolinks"
 import * as ActiveStorage from "@rails/activestorage"
 import "channels"
 import { initMapbox } from '../plugins/init_mapbox';
+import { initDownloadImage } from '../plugins/download_image';
 
 Rails.start()
 Turbolinks.start()
@@ -15,4 +16,5 @@ ActiveStorage.start()
 
 document.addEventListener('turbolinks:load', () => {
   initMapbox();
+  initDownloadImage();
 })
