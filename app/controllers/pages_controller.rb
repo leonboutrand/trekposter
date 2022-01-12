@@ -1,16 +1,40 @@
 class PagesController < ApplicationController
+  before_action :set_poster #, only: %I[show invite update_games]
+
+  def set_poster
+    @poster = {
+      bounds: "",
+      height: 600,
+      width: 1000,
+      padding: 10,
+      background: 'linear-gradient(to right, yellow, green)',
+      elevation_profile: true,
+      elevation_color: 'green',
+      elevation_height: 200,
+      legend: {}
+    }
+  end
 
   def parseGPX(file_url)
     file = File.open(file_url)
     doc = Nokogiri::XML(open(file))
     trackpoints = doc.xpath('//xmlns:trkpt')
-    trackpoints.map do |trkpt|
+    markers = trackpoints.map do |trkpt|
       {
         lat: trkpt.xpath('@lat').try(:to_s).try(:to_f),
         lng: trkpt.xpath('@lon').try(:to_s).try(:to_f),
-        ele: trkpt.children[1].try(:text).try(:to_f)
+        ele: trkpt.text.strip.to_f,
+        ele2: trkpt.children[1].try(:text).try(:to_f)
       }
     end
+    distance = 0
+    previous_coord = [markers[0][:lat], markers[0][:lng]]
+    markers.each do |marker|
+      distance += Math.sqrt((marker[:lat] - previous_coord[0]) ** 2 + (marker[:lng] - previous_coord[1]) ** 2)
+      marker[:distance] = distance
+      previous_coord = [marker[:lat], marker[:lng]]
+    end
+    markers
   end
 
   def global_coloring(markers_set)
@@ -35,16 +59,10 @@ class PagesController < ApplicationController
       markers_set.each.with_index do |markers, i|
         ap [markers.length, i]
         colors << []
-        distance = 0
-        previous_coord = [markers[0][:lat], markers[0][:lng]]
-        markers.each do |marker|
-          distance += Math.sqrt((marker[:lat] - previous_coord[0]) ** 2 + (marker[:lng] - previous_coord[1]) ** 2)
-          marker[:color] = ((marker[:ele] - min_ele)*grad / amp_ele).to_i
-          marker[:distance] = distance
-          previous_coord = [marker[:lat], marker[:lng]]
-        end
+        distance = markers[-1][:distance]
         previous_color = -1
         markers.each do |marker|
+          marker[:color] = ((marker[:ele] - min_ele)*grad / amp_ele).to_i
           if previous_color != marker[:color]
             colors[i] += [marker[:distance].fdiv(distance), color_range[marker[:color]]]
           end
@@ -57,9 +75,41 @@ class PagesController < ApplicationController
     colors
   end
 
+  def elevation_path(markers_set)
+    ele_margin = 40.0
+    ele_height = @poster[:elevation_height]
+    ele_width = @poster[:width] - 2 * @poster[:padding] - 10
+    
+
+    markers_set.each.with_index { |markers, i|
+      if (i > 0)
+        cumul = markers_set[i - 1][-1][:cumulated_distance]
+        markers.each { |marker| marker[:cumulated_distance] = marker[:distance] + cumul }
+      else
+        markers.each { |marker| marker[:cumulated_distance] = marker[:distance] }
+      end
+    }
+    flat_markers_set = markers_set.flatten
+    max_ele = flat_markers_set.max {|a, b| a[:ele] <=> b[:ele]}[:ele]
+    min_ele = flat_markers_set.min {|a, b| a[:ele] <=> b[:ele]}[:ele]
+    amp_ele = max_ele - min_ele
+    max_width = flat_markers_set[-1][:cumulated_distance]
+    path = ["M", "0", ele_height, "L"]
+    flat_markers_set.each do |marker|
+      path += [
+        marker[:cumulated_distance] * ele_width / max_width,
+        ele_height - (ele_margin + (marker[:ele] - min_ele) * (ele_height - ele_margin) / amp_ele),
+        "L"
+      ]
+    end
+    path << [ele_width, ele_height, "Z"]
+    path.join(" ")
+  end
+
   def main
-    urls = ['app/assets/gpx/sgmx.gpx','app/assets/gpx/sgmx2.gpx']
+    urls = ['app/assets/gpx/sgmx3.gpx']
     @markers = urls.map { |url| parseGPX(url) }
     @route_colors = global_coloring(@markers)
+    @elevation_path = elevation_path(@markers)
   end
 end
