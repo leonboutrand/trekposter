@@ -7,11 +7,17 @@ class PagesController < ApplicationController
       height: 600,
       width: 1000,
       padding: 10,
-      background: 'linear-gradient(to right, yellow, green)',
+      background: 'linear-gradient(to right, #EEE, #BBB)',
       elevation_profile: true,
-      elevation_color: 'green',
+      elevation_color: '#336',
       elevation_height: 200,
-      legend: {}
+      legend: {
+        title: "Road trip 2022",
+        subtitle: "VTT | Léon Boutrand",
+        text_color: "red",
+        position: 1,
+        disposition: 1,
+      }
     }
   end
 
@@ -57,7 +63,6 @@ class PagesController < ApplicationController
 
     if (amp_ele > 0)
       markers_set.each.with_index do |markers, i|
-        ap [markers.length, i]
         colors << []
         distance = markers[-1][:distance]
         previous_color = -1
@@ -106,9 +111,23 @@ class PagesController < ApplicationController
     path.join(" ")
   end
 
+  def clean_markers(markers_set)
+    length = markers_set.map(&:length).reduce(:+)
+    max_points = 3000.0
+    return if length < max_points
+    points_to_delete = length - max_points
+    markers_set.each do |markers|
+      ptd = markers.length * points_to_delete / length
+      indexes = (1..ptd).map { |i| (i * markers.length / ptd).to_i }.reverse
+      indexes.each { |i| markers[i] = nil }
+      markers.select! { |m| !m.nil? }
+    end
+  end
+
   def main
-    urls = ['app/assets/gpx/sgmx3.gpx']
+    urls = ['app/assets/gpx/3_0_0_Aix_Brian_on_par_Vars_et_Izoard.gpx', 'app/assets/gpx/sgmx.gpx','app/assets/gpx/sgmx2.gpx','app/assets/gpx/sgmx3.gpx']
     @markers = urls.map { |url| parseGPX(url) }
+    clean_markers(@markers)
     @route_colors = global_coloring(@markers)
     @elevation_path = elevation_path(@markers)
   end

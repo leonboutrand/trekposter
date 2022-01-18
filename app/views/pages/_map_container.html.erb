@@ -1,11 +1,20 @@
+<% 
+  width = poster[:width] - 2 * poster[:padding]
+  height = poster[:height] - 2 * poster[:padding]
+%>
+
 <div id="map-container"
-  style="width: <%= poster[:width] - 2 * poster[:padding] %>px; height: <%= poster[:height] - 2 * poster[:padding] %>px; background: <%= poster[:background] %>; padding: <%= poster[:padding] %>px;"
+  style="width: <%= width %>px;
+  height: <%= height %>px;
+  background: <%= poster[:background] %>;
+  padding: <%= poster[:padding] %>px;"
 >
-  <svg class="route">
-    <%# <rect width="100px" height="100px" fill="red" /> %>
-  </svg>
+  <%# <svg class="route">
+    <%# <rect width="100px" height="100px" fill="red" />
+  </svg> %>
   <div id="map"
-    style="width: 100%; height: <%= poster[:height] - 2 * poster[:padding] - poster[:elevation_height] - 20 %>px;"
+    style="width: 100%;
+    height: <%= height - poster[:elevation_height] - 20 %>px;"
     data-markers="<%= markers.to_json %>"
     data-poster="<%= poster.to_json %>"
     data-route-colors="<%= route_colors.to_json %>"
@@ -13,10 +22,16 @@
   </div>
 
   <% if poster[:elevation_profile] %>
-    <div id="elevation-profile" style="height: <%= poster[:elevation_height] %>px; width: <%= poster[:width] - 2 * poster[:padding] - 10 %>px;">
-      <svg width="<%= poster[:width] - 2 * poster[:padding] - 10 %>px" height="<%= poster[:elevation_height] + 20 %>px;">
+    <div id="elevation-profile"
+    style="height: <%= poster[:elevation_height] %>px;
+    width: <%= width - 10 %>px;">
+      <svg width="<%= width - 10 %>px" height="<%= poster[:elevation_height] + 20 %>px;">
         <path d="<%= elevation_path %>" stroke="<%= poster[:elevation_color] %>" fill="<%= poster[:elevation_color] %>" />
       </svg>
     </div>
+  <% end %>
+
+  <% if poster[:legend] %>
+    <%= render 'legend', legend: poster[:legend] %>
   <% end %>
 </div>
