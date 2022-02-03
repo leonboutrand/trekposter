@@ -1,8 +1,15 @@
 // Place all the styles related to the pages controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: https://sass-lang.com/
+
+#map-params {
+  width: 100%;
+}
+
 #map-container {
   position: relative;
+  margin: 20px;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
 
 // SVG ROUTE
@@ -15,5 +22,4 @@
 
 #elevation-profile {
   background: #FFF3;
-  padding: 10px 5px;
 }

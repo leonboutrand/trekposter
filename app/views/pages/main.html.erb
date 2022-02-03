@@ -1,7 +1,11 @@
 <h1>MY TREK POSTER</h1>
 
-<%= render 'map_params' %>
+<div id="map-params">
+  <%= render 'map_params' %>
+</div>
 
-<%= render 'map_container', markers: @markers, poster: @poster, route_colors: @route_colors, elevation_path: @elevation_path %>
+<div id="map-container">
+  <%= render 'map_container', markers: @markers, poster: @poster, route_colors: @route_colors, elevation_path: @elevation_path %>
+</div>
 
 <button id="save-button">Save button</button>

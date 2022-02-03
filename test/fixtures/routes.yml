@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  poster: one
+  name: MyString
+  elevation: false
+  thickness: 1
+  color1: MyString
+  color2: MyString
+  sort_index: 1
+  gpx_track: MyString
+
+two:
+  poster: two
+  name: MyString
+  elevation: false
+  thickness: 1
+  color1: MyString
+  color2: MyString
+  sort_index: 1
+  gpx_track: MyString

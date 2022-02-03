@@ -1,22 +1,24 @@
 class PagesController < ApplicationController
-  before_action :set_poster #, only: %I[show invite update_games]
+  before_action :set_poster, only: %I[main]
 
   def set_poster
+    # @poster = params[:id] && Poster.find(params[:id]) || Poster.new
     @poster = {
       bounds: "",
       height: 600,
       width: 1000,
-      padding: 10,
-      background: 'linear-gradient(to right, #EEE, #BBB)',
+      padding: 0,
+      background: 'linear-gradient(to right, #EEE, #EEB)',
       elevation_profile: true,
-      elevation_color: '#336',
-      elevation_height: 200,
+      elevation_color: '#A66',
+      elevation_height: 100,
       legend: {
         title: "Road trip 2022",
         subtitle: "VTT | Léon Boutrand",
-        text_color: "red",
-        position: 1,
-        disposition: 1,
+        text_color: "brown",
+        position: 0, # haut bas
+        disposition: 1, # balek
+        height: 150
       }
     }
   end
@@ -125,7 +127,8 @@ class PagesController < ApplicationController
   end
 
   def main
-    urls = ['app/assets/gpx/3_0_0_Aix_Brian_on_par_Vars_et_Izoard.gpx', 'app/assets/gpx/sgmx.gpx','app/assets/gpx/sgmx2.gpx','app/assets/gpx/sgmx3.gpx']
+    # urls = @poster.routes
+    urls = ['app/assets/gpx/sgmx.gpx','app/assets/gpx/sgmx2.gpx','app/assets/gpx/sgmx3.gpx'] #'app/assets/gpx/3_0_0_Aix_Brian_on_par_Vars_et_Izoard.gpx',
     @markers = urls.map { |url| parseGPX(url) }
     clean_markers(@markers)
     @route_colors = global_coloring(@markers)
