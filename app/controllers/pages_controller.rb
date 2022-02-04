@@ -2,25 +2,26 @@ class PagesController < ApplicationController
   before_action :set_poster, only: %I[main]
 
   def set_poster
-    # @poster = params[:id] && Poster.find(params[:id]) || Poster.new
-    @poster = {
+    @legend = Legend.new(
+      # title: "Road trip 2022",
+      # subtitle: "VTT | Léon Boutrand",
+      # text_color: "brown",
+      # position: true, # haut bas
+      # disposition: true, # balek
+      # height: 150
+    )
+    @poster = params[:id] && Poster.find(params[:id]) || Poster.new(
       bounds: "",
-      height: 600,
-      width: 1000,
-      padding: 0,
-      background: 'linear-gradient(to right, #EEE, #EEB)',
-      elevation_profile: true,
-      elevation_color: '#A66',
-      elevation_height: 100,
-      legend: {
-        title: "Road trip 2022",
-        subtitle: "VTT | Léon Boutrand",
-        text_color: "brown",
-        position: 0, # haut bas
-        disposition: 1, # balek
-        height: 150
-      }
-    }
+      # height: 600,
+      # width: 1000,
+      # padding: 0,
+      # background: 'brown',
+      theme: 'mapbox://styles/leonb95/ckz8zjjed000f14mx4w81nkxw',# 'mapbox://styles/mapbox/dark-v10',
+      # elevation_profile: true,
+      # elevation_color: '#A66',
+      # elevation_height: 100,
+      legend: @legend
+    )
   end
 
   def parseGPX(file_url)

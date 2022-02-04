@@ -12,9 +12,10 @@ const initMapbox = () => {
 
   if (mapElement) { // only build a map if there's a div#map to inject into
     mapboxgl.accessToken = mapElement.dataset.mapboxApiKey;
+    const poster = JSON.parse(mapElement.dataset.poster);
     const map = new mapboxgl.Map({
       container: 'map',
-      style: 'mapbox://styles/mapbox/streets-v11',
+      style: poster.theme,// || 'mapbox://styles/mapbox/streets-v11',
       preserveDrawingBuffer: true,
     });
 
@@ -30,17 +31,17 @@ const initMapbox = () => {
       ].concat(colorsSet[index])
       markers.forEach((marker) => {
         lines[index].push([marker.lng, marker.lat])
-        const mk = document.createElement('div');
-        mk.className = 'marker';
-        mk.style.backgroundColor = 'red';
-        mk.style.borderRadius = '50%';
-        mk.style.width = '5px';
-        mk.style.height = '5px';
-        mk.style.display = 'none';
+        // const mk = document.createElement('div');
+        // mk.className = 'marker';
+        // mk.style.backgroundColor = 'red';
+        // mk.style.borderRadius = '50%';
+        // mk.style.width = '5px';
+        // mk.style.height = '5px';
+        // mk.style.display = 'none';
   
-        new mapboxgl.Marker(mk)
-          .setLngLat([ marker.lng, marker.lat ])
-          .addTo(map);
+        // new mapboxgl.Marker(mk)
+        //   .setLngLat([ marker.lng, marker.lat ])
+        //   .addTo(map);
       });
       map.on('load', () => {
         map.addSource(`route${index}`, {
@@ -72,6 +73,7 @@ const initMapbox = () => {
         });
     })
     fitMapToMarkers(map, markersSet.flat());
+    document.querySelector("#map-container").style.transform = "scale(0.2)"
   }
 };
 

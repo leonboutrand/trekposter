@@ -1,27 +1,26 @@
 <% 
-  # width = poster[:width] - 2 * poster[:padding]
-  # height = poster[:height] - 2 * poster[:padding]
-  legend_height = poster[:legend] && poster[:legend][:height] || 0
+  # width = poster.width - 2 * poster.padding
+  # height = poster.height - 2 * poster.padding
+  legend_height = poster.legend && poster.legend.height || 0
 %>
-
 <div
-  style="width: <%= poster[:width] %>px;
-  height: <%= poster[:height] %>px;
-  background: <%= poster[:background] %>;"
+  style="width: <%= poster.width %>px;
+  height: <%= poster.height %>px;
+  background: <%= poster.background %>;"
 >
   <%# <svg class="route">
     <%# <rect width="100px" height="100px" fill="red" />
   </svg> %>
-  <% if poster[:legend] && poster[:legend][:position] === 1 %>
+  <% if poster.legend && !poster.legend.position %>
     <div id="legend">
-      <%= render 'legend', legend: poster[:legend] %>
+      <%= render 'legend', legend: poster.legend %>
     </div>
   <% end %>
 
   <div id="map"
     style="width: 100%;
-    height: <%= poster[:height] - poster[:elevation_height] - legend_height %>px;
-    padding: <%= poster[:padding] %>px;
+    height: <%= poster.height - poster.elevation_height - legend_height - 20 %>px;
+    padding: <%= poster.padding %>px;
     padding-bottom: 0px;"
     data-markers="<%= markers.to_json %>"
     data-poster="<%= poster.to_json %>"
@@ -29,15 +28,15 @@
     data-mapbox-api-key="<%= ENV['MAPBOX_API_KEY'] %>">
   </div>
 
-  <% if poster[:elevation_profile] %>
+  <% if poster.elevation_profile %>
     <div id="elevation-profile">
-      <%= render 'elevation_profile', height: poster[:elevation_height], color: poster[:elevation_color], elevation_path: elevation_path, width: poster[:width], padding: [5, poster[:padding]].max %>
+      <%= render 'elevation_profile', height: poster.elevation_height, color: poster.elevation_color, elevation_path: elevation_path, width: poster.width, padding: [5, poster.padding].max %>
     </div>
   <% end %>
 
-  <% if poster[:legend] && poster[:legend][:position] === 0 %>
+  <% if poster.legend.try(:position) %>
     <div id="legend">
-      <%= render 'legend', legend: poster[:legend] %>
+      <%= render 'legend', legend: poster.legend %>
     </div>
   <% end %>
 </div>

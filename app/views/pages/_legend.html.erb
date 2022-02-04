@@ -1,12 +1,8 @@
-<%
-  legend[:disposition]
-  legend[:position]
-%>
-<div id="legend" style="color: <%= legend[:text_color] %>; height: <%= legend[:height] %>px;">
-  <div>
-    <%= legend[:title] %>
+<div class="legend" style="color: <%= legend.text_color %>; height: <%= legend.height %>px;">
+  <div class="title">
+    <%= legend.title %>
   </div>
-  <div>
-    <%= legend[:subtitle] %>
+  <div class="subtitle">
+    <%= legend.subtitle %>
   </div>
 </div>
